@@ -8,7 +8,7 @@
   "devDependencies": {
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-react": "^7.26.1",
-    "prettier": "2.4.1",
+    "prettier": "2.7.1",
     "react-test-renderer": "^17.0.2",
     "redux-mock-store": "^1.5.4"
   },
@@ -70,5 +70,5 @@
   },
   "resolutions": {
     "autoprefixer": "10.4.5"
-  }  
+  }
 }

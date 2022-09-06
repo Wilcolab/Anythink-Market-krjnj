@@ -9,6 +9,10 @@ import {
   ITEM_PAGE_UNLOADED,
 } from "../../constants/actionTypes";
 
+const BACKEND_URL = "http://localhost:3000";
+
+const placeholder = `${BACKEND_URL}/static/images/placeholder.png`;
+
 const mapStateToProps = (state) => ({
   ...state.item,
   currentUser: state.common.currentUser,
@@ -19,6 +23,9 @@ const mapDispatchToProps = (dispatch) => ({
   onUnload: () => dispatch({ type: ITEM_PAGE_UNLOADED }),
 });
 
+const addDefaultSrc = (ev) => {
+  ev.target.src = placeholder;
+};
 class Item extends React.Component {
   componentWillMount() {
     this.props.onLoad(
@@ -50,6 +57,7 @@ class Item extends React.Component {
           <div className="row bg-white p-4">
             <div className="col-6">
               <img
+                onError={addDefaultSrc}
                 src={this.props.item.image}
                 alt={this.props.item.title}
                 className="item-img"

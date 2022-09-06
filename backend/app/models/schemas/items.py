@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 from app.models.domain.items import Item
 from app.models.schemas.rwschema import RWSchema
@@ -24,6 +24,12 @@ class ItemInCreate(RWSchema):
     image: Optional[str] = None
     tags: List[str] = Field([], alias="tagList")
 
+    class Config:
+        validate_assignment = True
+
+    @validator('image')
+    def set_image(cls, image):
+        return image or 'http://127.0.0.1:3000/static/images/placeholder.png'
 
 class ItemInUpdate(RWSchema):
     title: Optional[str] = None

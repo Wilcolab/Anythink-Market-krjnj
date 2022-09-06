@@ -1,6 +1,13 @@
 import ItemActions from "./ItemActions";
 import { Link } from "react-router-dom";
 import React from "react";
+const BACKEND_URL = "http://localhost:3000";
+
+const placeholder = `${BACKEND_URL}/static/images/placeholder.png`;
+
+const addDefaultSrc = (ev) => {
+  ev.target.src = placeholder;
+};
 
 const ItemMeta = (props) => {
   const item = props.item;
@@ -8,6 +15,7 @@ const ItemMeta = (props) => {
     <div className="d-flex flex-row align-items-center pt-2">
       <Link to={`/@${item.seller.username}`}>
         <img
+          onError={addDefaultSrc}
           src={item.seller.image}
           alt={item.seller.username}
           className="user-pic mr-2"
