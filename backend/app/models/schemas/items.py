@@ -27,7 +27,7 @@ class ItemInCreate(RWSchema):
     class Config:
         validate_assignment = True
 
-    @validator('image')
+    @validator("image", pre=True, always=True)
     def set_image(cls, image):
         return image or 'http://127.0.0.1:3000/static/images/placeholder.png'
 
