@@ -37,6 +37,7 @@ class ListOfItemsInResponse(RWSchema):
 
 
 class ItemsFilters(BaseModel):
+    title: Optional[str] = None
     tag: Optional[str] = None
     seller: Optional[str] = None
     favorited: Optional[str] = None
