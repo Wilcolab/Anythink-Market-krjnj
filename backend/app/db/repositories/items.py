@@ -103,6 +103,7 @@ class ItemsRepository(BaseRepository):  # noqa: WPS214
     async def filter_items(  # noqa: WPS211
         self,
         *,
+        title: Optional[str] = None,
         tag: Optional[str] = None,
         seller: Optional[str] = None,
         favorited: Optional[str] = None,
@@ -113,88 +114,114 @@ class ItemsRepository(BaseRepository):  # noqa: WPS214
         query_params: List[Union[str, int]] = []
         query_params_count = 0
 
-        # fmt: off
         query = Query.from_(
-            items,
-        ).select(
-            items.id,
-            items.slug,
-            items.title,
-            items.description,
-            items.body,
-            items.image,
-            items.created_at,
-            items.updated_at,
-            Query.from_(
-                users,
-            ).where(
-                users.id == items.seller_id,
+                items,
             ).select(
-                users.username,
-            ).as_(
-                SELLER_USERNAME_ALIAS,
-            ),
-        )
-        # fmt: on
-
-        if tag:
-            query_params.append(tag)
-            query_params_count += 1
-
-            # fmt: off
-            query = query.join(
-                items_to_tags,
-            ).on(
-                (items.id == items_to_tags.item_id) & (
-                    items_to_tags.tag == Query.from_(
-                        tags_table,
-                    ).where(
-                        tags_table.tag == Parameter(query_params_count),
-                    ).select(
-                        tags_table.tag,
-                    )
+                items.id,
+                items.slug,
+                items.title,
+                items.description,
+                items.body,
+                items.image,
+                items.created_at,
+                items.updated_at,
+                Query.from_(
+                    users,
+                ).where(
+                    users.id == items.seller_id,
+                ).select(
+                    users.username,
+                ).as_(
+                    SELLER_USERNAME_ALIAS,
                 ),
             )
-            # fmt: on
-
-        if seller:
-            query_params.append(seller)
-            query_params_count += 1
-
+        # fmt: off
+        if title:
             # fmt: off
-            query = query.join(
-                users,
-            ).on(
-                (items.seller_id == users.id) & (
-                    users.id == Query.from_(
+            query = Query.from_(
+                    items,
+                ).where(
+                    items.title.like(f'%{title}%')
+                ).select(
+                    items.id,
+                    items.slug,
+                    items.title,
+                    items.description,
+                    items.body,
+                    items.image,
+                    items.created_at,
+                    items.updated_at,
+                    Query.from_(
                         users,
                     ).where(
-                        users.username == Parameter(query_params_count),
+                        users.id == items.seller_id,
                     ).select(
-                        users.id,
-                    )
-                ),
-            )
+                        users.username,
+                    ).as_(
+                        SELLER_USERNAME_ALIAS,
+                    ),
+                )
+        else:
             # fmt: on
 
-        if favorited:
-            query_params.append(favorited)
-            query_params_count += 1
+            if tag:
+                query_params.append(tag)
+                query_params_count += 1
 
-            # fmt: off
-            query = query.join(
-                favorites,
-            ).on(
-                (items.id == favorites.item_id) & (
-                    favorites.user_id == Query.from_(
-                        users,
-                    ).where(
-                        users.username == Parameter(query_params_count),
-                    ).select(
-                        users.id,
-                    )
-                ),
-            )
+                # fmt: off
+                query = query.join(
+                    items_to_tags,
+                ).on(
+                    (items.id == items_to_tags.item_id) & (
+                        items_to_tags.tag == Query.from_(
+                            tags_table,
+                        ).where(
+                            tags_table.tag == Parameter(query_params_count),
+                        ).select(
+                            tags_table.tag,
+                        )
+                    ),
+                )
+                # fmt: on
+
+            if seller:
+                query_params.append(seller)
+                query_params_count += 1
+
+                # fmt: off
+                query = query.join(
+                    users,
+                ).on(
+                    (items.seller_id == users.id) & (
+                        users.id == Query.from_(
+                            users,
+                        ).where(
+                            users.username == Parameter(query_params_count),
+                        ).select(
+                            users.id,
+                        )
+                    ),
+                )
+                # fmt: on
+
+            if favorited:
+                query_params.append(favorited)
+                query_params_count += 1
+
+                # fmt: off
+                query = query.join(
+                    favorites,
+                ).on(
+                    (items.id == favorites.item_id) & (
+                        favorites.user_id == Query.from_(
+                            users,
+                        ).where(
+                            users.username == Parameter(query_params_count),
+                        ).select(
+                            users.id,
+                        )
+                    ),
+                )
             # fmt: on
 
         query = query.limit(Parameter(query_params_count + 1)).offset(
