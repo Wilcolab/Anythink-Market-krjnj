@@ -58,6 +58,20 @@ const TagFilterTab = (props) => {
   );
 };
 
+const TitleNotFound = (props) => {
+  // const search = document.getElementById("search-box");
+  if (props.items?.length === 0) {
+    if (props.title?.length > 2) {
+      return (
+        <div id="empty">
+          No items found for <strong>"{props.title}"</strong>
+        </div>
+      );
+    }
+  }
+  return null;
+};
+
 const mapStateToProps = (state) => ({
   ...state.itemList,
   tags: state.home.tags,
@@ -85,7 +99,7 @@ const MainView = (props) => {
           <TagFilterTab tag={props.tag} />
         </ul>
       </div>
-
+      <TitleNotFound items={props.items} title={props.title} />
       <ItemList
         pager={props.pager}
         items={props.items}
