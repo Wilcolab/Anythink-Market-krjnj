@@ -5,6 +5,7 @@ import { APPLY_TITLE_FILTER } from "../../constants/actionTypes";
 
 const mapStateToProps = (state) => ({
   ...state.itemList,
+  title: "",
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -17,13 +18,15 @@ const Search = (props) => {
   const changeHandler = (ev) => {
     ev.preventDefault();
     const query = ev.target.value.trim();
-    if (query.length > 3) {
+    if (query.length > 2) {
       console.log(query);
       props.onChangeTitle(
         query,
         (page) => agent.Items.byTitle(query, page),
         agent.Items.byTitle(query)
       );
+    } else if (query.length === 0) {
+      props.onChangeTitle("", agent.Items.all, agent.Items.all());
     }
   };
   return (
