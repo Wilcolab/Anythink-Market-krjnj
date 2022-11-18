@@ -6,8 +6,8 @@ const Banner = () => {
   return (
     <div className="banner text-white">
       <div className="container p-4 text-center">
-        <img src={logo} alt="banner" height="10" />
-        <div className="d-flex justify-content-center align-items-center">
+        <img className="img-fluid" src={logo} alt="banner" />
+        <div>
           <span>A place to </span>
           <span
             id="get-part"
