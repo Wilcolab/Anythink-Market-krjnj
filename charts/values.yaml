@@ -1,0 +1,63 @@
+backend:
+  serviceName: anythink-backend
+  containerPort: 3000
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+  image:
+    repository: 498915426792.dkr.ecr.us-east-2.amazonaws.com/anythink-backend
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
+  resources:
+    limits:
+      cpu: 100m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+frontend:
+  serviceName: anythink-frontend
+  containerPort: 3001
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+  image:
+    repository: 498915426792.dkr.ecr.us-east-2.amazonaws.com/anythink-frontend
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
+  resources:
+    limits:
+      cpu: 600m
+      memory: 768Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+database:
+  connectionProtocol: postgresql://
+  serviceName: postgres-python
+  containerPort: 5433
+  servicePort: 5432
+  databaseName: anythink-market
+  replicaCount: 1
+  env:
+    password: postgres
+  service:
+    type: ClusterIP
+    port: 80
+  image:
+    repository: postgres
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi

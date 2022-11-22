@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Values.frontend.serviceName }}
+  name: {{ .Values.frontend.serviceName }}
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.frontend.serviceName }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.frontend.serviceName }}
+    spec:
+      containers:
+        - args:
+            - sh
+            - -c
+            - yarn start
+          env:
+            - name: NODE_ENV
+              value: development
+            - name: PORT
+              value: "{{ .Values.frontend.containerPort }}"
+            - name: REACT_APP_BACKEND_URL
+              value: https://{{ .Release.Namespace }}-api.anythink.market
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          name: {{ .Values.frontend.serviceName }}
+          ports:
+            - containerPort: {{ .Values.frontend.containerPort }}
+              name: http
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            failureThreshold: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+      restartPolicy: Always

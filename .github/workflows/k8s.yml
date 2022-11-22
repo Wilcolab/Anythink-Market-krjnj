@@ -1,0 +1,119 @@
+name: Build and deploy to Kubernetes
+on:
+  push:
+    branches:
+      - main
+jobs:
+  check-secret:
+    environment: Production
+    runs-on: ubuntu-latest
+    outputs:
+      creds-defined: ${{ steps.creds-defined.outputs.DEFINED }}
+    steps:
+      - id: creds-defined
+        if: "${{ env.AWS_ACCESS_KEY_ID != '' && env.AWS_SECRET_ACCESS_KEY != '' && env.KUBECONFIG != '' }}"
+        run: echo "DEFINED=true" >> $GITHUB_OUTPUT
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+
+  build-backend:
+    name: Build backend image
+    runs-on: ubuntu-20.04
+    needs: [check-secret]
+    if: needs.check-secret.outputs.creds-defined == 'true'
+    environment: Production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Set the image tag
+        run: echo IMAGE_TAG=${GITHUB_REPOSITORY/\//-}-latest >> $GITHUB_ENV
+
+      - name: Build, tag, and push backend image to Amazon ECR
+        id: build-image-backend
+        run: |
+          docker build \
+            -t ${{ steps.login-ecr.outputs.registry }}/anythink-backend:${{ env.IMAGE_TAG }} \
+            -f backend/Dockerfile.aws \
+            .
+          docker push ${{ steps.login-ecr.outputs.registry }}/anythink-backend:${{ env.IMAGE_TAG }}
+
+  build-frontend:
+    name: Build frontend images
+    runs-on: ubuntu-20.04
+    needs: [check-secret]
+    if: needs.check-secret.outputs.creds-defined == 'true'
+    environment: Production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Set the image tag
+        run: echo IMAGE_TAG=${GITHUB_REPOSITORY/\//-}-latest >> $GITHUB_ENV
+
+      - name: Build, tag, and push frontend image to Amazon ECR
+        id: build-image-frontend
+        run: |
+          docker build \
+            -t ${{ steps.login-ecr.outputs.registry }}/anythink-frontend:${{ env.IMAGE_TAG }} \
+            -f frontend/Dockerfile.aws \
+            .
+          docker push ${{ steps.login-ecr.outputs.registry }}/anythink-frontend:${{ env.IMAGE_TAG }}
+
+  deploy:
+    name: Deploy latest tag using helm
+    runs-on: ubuntu-20.04
+    environment: Production
+    needs:
+      - build-frontend
+      - build-backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create kube config
+        run: |
+          mkdir -p $HOME/.kube/
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+      - name: Install helm
+        run: |
+          curl -LO https://get.helm.sh/helm-v3.8.0-linux-amd64.tar.gz
+          tar -zxvf helm-v3.8.0-linux-amd64.tar.gz
+          mv linux-amd64/helm /usr/local/bin/helm
+          helm version
+      - name: Lint helm charts
+        run: helm lint ./charts/
+
+      - name: Set the image tag
+        run: echo IMAGE_TAG=${GITHUB_REPOSITORY/\//-}-latest >> $GITHUB_ENV
+
+      - name: Deploy
+        run: |
+          helm upgrade --install --timeout 10m anythink-market ./charts/ \
+              --set frontend.image.tag=${{ env.IMAGE_TAG }} \
+              --set backend.image.tag=${{ env.IMAGE_TAG }}

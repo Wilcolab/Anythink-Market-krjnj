@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Values.backend.serviceName }}
+  name: {{ .Values.backend.serviceName }}
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.backend.serviceName }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.backend.serviceName }}
+    spec:
+      containers:
+        - args:
+            - sh
+            - -c
+            - "poetry run uvicorn --host=0.0.0.0 --port={{ .Values.backend.containerPort }}"
+          env:
+            - name: APP_ENV
+              value: dev
+            - name: SECRET_KEY
+              value: secret
+            - name: DEBUG
+              value: True
+            - name: DATABASE_URL
+              value: "{{ .Values.database.connectionProtocol }}{{ .Values.database.env.password }}:@{{ .Values.database.serviceName }}:{{ .Values.database.servicePort }}/{{ .Values.database.databaseName }}"
+            - name: RAILS_ENV
+              value: development
+            - name: PORT
+              value: "{{ .Values.backend.containerPort }}"
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          name: {{ .Values.backend.serviceName }}
+          ports:
+            - containerPort: {{ .Values.backend.containerPort }}
+              name: http  
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            failureThreshold: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+      initContainers:
+        - command:
+            - sh
+            - -c
+            - "poetry run alembic upgrade head"
+          env:
+            - name: APP_ENV
+              value: dev
+            - name: SECRET_KEY
+              value: secret
+            - name: DEBUG
+              value: True
+            - name: DATABASE_URL
+              value: "{{ .Values.database.connectionProtocol}}{{ .Values.database.env.password}}:@{{ .Values.database.serviceName }}:{{ .Values.database.servicePort }}/{{ .Values.database.databaseName }}"
+            - name: RAILS_ENV
+              value: development
+            - name: PORT
+              value: "{{ .Values.backend.containerPort }}"
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          name: db-migrations
+      restartPolicy: Always
