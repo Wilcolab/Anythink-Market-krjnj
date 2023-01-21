@@ -40,7 +40,8 @@
     "sass": "^1.45.0",
     "superagent": "^3.8.2",
     "superagent-promise": "^1.1.0",
-    "typescript": "^4.8.2"
+    "typescript": "^4.8.2",
+    "redux-i18n": "^1.5.26"
   },
   "scripts": {
     "start": "REACT_APP_WILCO_ID=${WILCO_ID:-\"$(cat ../.wilco)\"} react-scripts start",
