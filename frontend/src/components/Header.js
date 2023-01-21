@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState} from "react";
 import { Link } from "react-router-dom";
 import logo from "../imgs/topbar_logo.png";
 
@@ -48,6 +48,34 @@ const LoggedInView = (props) => {
     </ul>
   );
 };
+const SelectLanguage = (props) => {
+  const options = [
+    {
+      label: "English",
+      value: "en",
+    },
+    {
+      label: "French",
+      value: "fr",
+    },
+  ];
+  const [lang, setState] = useState(props.currentLang);
+  const handleChange = (e) => {
+    setState(e.target.value);
+    // props.dispatch(setLanguage(e.target.value));
+  };
+  return (
+    <div className="nav-item">
+      <i class="fas fa-language"></i>
+      <label for="set-language">&nbsp;Language&nbsp;</label>
+      <select value={lang} onChange={handleChange} id="set-language">
+        {options.map((option) => (
+          <option value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    </div>
+  );
+};
 
 class Header extends React.Component {
   render() {
@@ -65,6 +93,7 @@ class Header extends React.Component {
         ) : (
           <LoggedOutView currentUser={this.props.currentUser} />
         )}
+        <SelectLanguage currentLang='en'/>
       </nav>
     );
   }
