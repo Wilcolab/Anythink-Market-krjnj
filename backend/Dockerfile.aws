@@ -1,0 +1,15 @@
+FROM python:3.9.13
+
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN pip install poetry==1.2.0
+
+# Pre-install poetry packages
+WORKDIR /usr/src
+COPY backend ./backend
+COPY .wilco ./.wilco
+WORKDIR /usr/src/backend
+RUN poetry install
+RUN poetry export -f "requirements.txt" --without-hashes --with-credentials > "requirements.txt"

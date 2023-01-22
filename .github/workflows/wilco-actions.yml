@@ -1,0 +1,43 @@
+on: 
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  wilco:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    name: Pr checks
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          SECRET_KEY: secret
+          POSTGRES_DB: anythink-market
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v2
+
+      - name: Use Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9.13"
+    
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}
+
+      - name: Wilco checks
+        id: Wilco
+        uses: trywilco/actions@main
+        with:
+          engine: ${{ secrets.WILCO_ENGINE_URL }}
