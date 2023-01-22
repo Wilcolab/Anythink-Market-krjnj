@@ -58,7 +58,7 @@ const SelectLanguage = (props, context) => {
   const options = [
     {
       label: context.t("English"),
-      value: "en",
+      value:  "en",
     },
     {
       label: context.t("French"),
