@@ -1,37 +1,43 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../imgs/topbar_logo.png";
+import PropTypes from "prop-types";
+import { setLanguage } from "redux-i18n";
+import { connect } from "react-redux";
 
-const LoggedOutView = () => {
+const mapStateToProps = (state) => ({
+  lang: state.i18nState.lang,
+});
+const LoggedOutView = (props, context) => {
   return (
     <ul className="navbar-nav ml-auto">
       <li className="nav-item">
         <Link to="/login" className="nav-link">
-          Sign in
+        {context.t('Sign in')}
         </Link>
       </li>
 
       <li className="nav-item">
         <Link to="/register" className="nav-link">
-          Sign up
+        {context.t('Sign up')}
         </Link>
       </li>
     </ul>
   );
 };
 
-const LoggedInView = (props) => {
+const LoggedInView = (props, context) => {
   return (
     <ul className="navbar-nav ml-auto">
       <li className="nav-item">
         <Link to="/editor" className="nav-link">
-          <i className="ion-compose"></i>&nbsp;New Item
+          <i className="ion-compose"></i>&nbsp;{context.t('New Item')}
         </Link>
       </li>
 
       <li className="nav-item">
         <Link to="/settings" className="nav-link">
-          <i className="ion-gear-a"></i>&nbsp;Settings
+          <i className="ion-gear-a"></i>&nbsp;{context.t('Settings')}
         </Link>
       </li>
 
@@ -48,26 +54,26 @@ const LoggedInView = (props) => {
     </ul>
   );
 };
-const SelectLanguage = (props) => {
+const SelectLanguage = (props, context) => {
   const options = [
     {
-      label: "English",
+      label: context.t("English"),
       value: "en",
     },
     {
-      label: "French",
+      label: context.t("French"),
       value: "fr",
     },
   ];
   const [lang, setState] = useState(props.currentLang);
   const handleChange = (e) => {
     setState(e.target.value);
-    // props.dispatch(setLanguage(e.target.value));
+    props.dispatch(setLanguage(e.target.value));
   };
   return (
     <div className="nav-item">
       <i class="fas fa-language"></i>
-      <label for="set-language">&nbsp;Language&nbsp;</label>
+      <label for="set-language">&nbsp;{context.t('Language')}&nbsp;</label>
       <select value={lang} onChange={handleChange} id="set-language">
         {options.map((option) => (
           <option value={option.value}>{option.label}</option>
@@ -93,10 +99,26 @@ class Header extends React.Component {
         ) : (
           <LoggedOutView currentUser={this.props.currentUser} />
         )}
-        <SelectLanguage currentLang='en'/>
+
+        <SelectLanguage
+          dispatch={this.props.dispatch}
+          currentLang={this.props.lang}
+          t={this.context}
+        />
       </nav>
     );
   }
 }
-
-export default Header;
+Header.contextTypes = {
+  t: PropTypes.func,
+};
+LoggedOutView.contextTypes = {
+  t: PropTypes.func,
+};
+LoggedInView.contextTypes = {
+  t: PropTypes.func,
+};
+SelectLanguage.contextTypes = {
+  t: PropTypes.func,
+};
+export default connect(mapStateToProps)(Header);
