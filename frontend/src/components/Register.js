@@ -3,6 +3,7 @@ import ListErrors from "./ListErrors";
 import React from "react";
 import agent from "../agent";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
 import {
   UPDATE_FIELD_AUTH,
   REGISTER,
@@ -51,7 +52,7 @@ class Register extends React.Component {
         <div className="container page text-center text-dark">
           <div className="row">
             <div className="col-md-6 offset-md-3 col-xs-12 bg-white p-4">
-              <h1 className="text-xs-center font-weight-bold pb-4">Sign Up</h1>
+              <h1 className="text-xs-center font-weight-bold pb-4">{this.context.t('Sign Up')}</h1>
 
               <ListErrors errors={this.props.errors} />
 
@@ -70,7 +71,7 @@ class Register extends React.Component {
                       <input
                         className="form-control form-control-lg"
                         type="text"
-                        placeholder="Username"
+                        placeholder={this.context.t('Username')}
                         value={this.props.username}
                         onChange={this.changeUsername}
                       />
@@ -90,7 +91,7 @@ class Register extends React.Component {
                       <input
                         className="form-control form-control-lg"
                         type="password"
-                        placeholder="Password"
+                        placeholder={this.context.t('Password')}
                         value={this.props.password}
                         onChange={this.changePassword}
                       />
@@ -110,7 +111,7 @@ class Register extends React.Component {
                       <input
                         className="form-control form-control-lg"
                         type="email"
-                        placeholder="Email"
+                        placeholder={this.context.t('Email')}
                         value={this.props.email}
                         onChange={this.changeEmail}
                       />
@@ -128,13 +129,13 @@ class Register extends React.Component {
                       borderRadius: "5px",
                     }}
                   >
-                    SIGN UP
+                    {this.context.t('SIGN UP')}
                   </button>
                 </fieldset>
               </form>
               <p className="text-center pt-4">
                 <Link to="/login" className="text-light">
-                  Have an account?
+                {this.context.t('Have an account?')}
                 </Link>
               </p>
             </div>
@@ -145,4 +146,7 @@ class Register extends React.Component {
   }
 }
 
+Register.contextTypes = {
+  t: PropTypes.func,
+};
 export default connect(mapStateToProps, mapDispatchToProps)(Register);
