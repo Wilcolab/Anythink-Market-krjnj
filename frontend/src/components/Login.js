@@ -3,6 +3,7 @@ import ListErrors from "./ListErrors";
 import React from "react";
 import agent from "../agent";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
 import {
   UPDATE_FIELD_AUTH,
   LOGIN,
@@ -44,7 +45,7 @@ class Login extends React.Component {
         <div className="container page text-center text-dark">
           <div className="row">
             <div className="col-md-6 offset-md-3 col-xs-12 bg-white p-4">
-              <h1 className="text-xs-center font-weight-bold pb-4">Sign In</h1>
+              <h1 className="text-xs-center font-weight-bold pb-4">{this.context.t('Sign In')}</h1>
 
               <ListErrors errors={this.props.errors} />
 
@@ -63,7 +64,7 @@ class Login extends React.Component {
                       <input
                         className="form-control form-control-lg"
                         type="email"
-                        placeholder="Email"
+                        placeholder={this.context.t('Email')}
                         value={email}
                         onChange={this.changeEmail}
                       />
@@ -83,7 +84,7 @@ class Login extends React.Component {
                       <input
                         className="form-control form-control-lg"
                         type="password"
-                        placeholder="Password"
+                        placeholder={this.context.t('Password')}
                         value={password}
                         onChange={this.changePassword}
                       />
@@ -101,13 +102,13 @@ class Login extends React.Component {
                       borderRadius: "5px",
                     }}
                   >
-                    SIGN IN
+                    {this.context.t('SIGN IN')}
                   </button>
                 </fieldset>
               </form>
               <p className="text-center pt-4">
                 <Link to="/register" className="text-light">
-                  Need an account?
+                  {this.context.t('Need an account?')}
                 </Link>
               </p>
             </div>
@@ -118,4 +119,7 @@ class Login extends React.Component {
   }
 }
 
+Login.contextTypes = {
+  t: PropTypes.func,
+};
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
