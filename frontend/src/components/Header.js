@@ -73,6 +73,7 @@ const SelectLanguage = (props, context) => {
   return (
     <div className="nav-item">
       <i class="fas fa-language"></i>
+      <label for="set-language">&nbsp;{context.t('Language')}&nbsp;</label>
       <select value={lang} onChange={handleChange} id="set-language">
         {options.map((option) => (
           <option value={option.value}>{option.label}</option>
