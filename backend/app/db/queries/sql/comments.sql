@@ -5,7 +5,8 @@ SELECT c.id,
        c.updated_at,
        (SELECT username FROM users WHERE id = c.seller_id) as seller_username
 FROM comments c
-         INNER JOIN items a ON c.item_id = a.id AND (a.slug = :slug);
+         INNER JOIN items a ON c.item_id = a.id AND (a.slug = :slug)
+ORDER BY c.created_at DESC;
 
 -- name: get-comment-by-id-and-slug^
 SELECT c.id,

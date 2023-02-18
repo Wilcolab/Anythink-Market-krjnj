@@ -29,6 +29,8 @@ class ItemInUpdate(RWSchema):
     title: Optional[str] = None
     description: Optional[str] = None
     body: Optional[str] = None
+    image: Optional[str] = None
+    tags: Optional[List[str]] = Field(None, alias="tagList")
 
 
 class ListOfItemsInResponse(RWSchema):

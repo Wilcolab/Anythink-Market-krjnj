@@ -93,16 +93,19 @@ class ItemsQueriesMixin:
     async def add_tags_to_item(
         self, conn: Connection, tags_slugs: Sequence[Dict[str, str]]
     ) -> None: ...
+    async def delete_tags_from_item(
+        self, conn: Connection, *, slug: str
+    ) -> None: ...
     async def update_item(
         self,
         conn: Connection,
         *,
         slug: str,
         seller_username: str,
-        new_slug: str,
         new_title: str,
         new_body: str,
-        new_description: str
+        new_description: str,
+        new_image: str
     ) -> Record: ...
     async def delete_item(
         self, conn: Connection, *, slug: str, seller_username: str
