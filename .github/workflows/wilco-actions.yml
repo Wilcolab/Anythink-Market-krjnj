@@ -5,7 +5,7 @@ on:
 
 jobs:
   wilco:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     timeout-minutes: 10
     name: Pr checks
 
@@ -35,6 +35,11 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}
+
+      - name: Setup Node for Wilco Checks
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
 
       - name: Wilco checks
         id: Wilco

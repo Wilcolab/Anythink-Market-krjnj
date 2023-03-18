@@ -45,6 +45,7 @@ frontend:
       memory: 128Mi
 
 database:
+  deploy: true
   connectionProtocol: postgresql://
   serviceName: postgres-python
   containerPort: 5433

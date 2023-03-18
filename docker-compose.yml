@@ -9,7 +9,7 @@ services:
             poetry export -f "requirements.txt" --without-hashes --with-credentials > "requirements.txt"
             /wait-for-it.sh postgres-python:5432 -q -t 60 && 
             poetry run alembic upgrade head &&
-            poetry run uvicorn --host=0.0.0.0 --port=3000 --reload app.main:app"
+            poetry run gunicorn app.main:app --worker-class=uvicorn.workers.UvicornWorker --bind=0.0.0.0:3000 --workers=5"
     working_dir: /usr/src
     volumes:
       - ./:/usr/src
