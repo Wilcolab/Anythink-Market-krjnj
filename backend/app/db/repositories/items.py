@@ -24,6 +24,14 @@ SLUG_ALIAS = "slug"
 
 CAMEL_OR_SNAKE_CASE_TO_WORDS = r"^[a-z\d_\-]+|[A-Z\d_\-][^A-Z\d_\-]*"
 
+import os
+
+import openai
+
+from dotenv import load_dotenv
+load_dotenv()
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class ItemsRepository(BaseRepository):  # noqa: WPS214
     def __init__(self, conn: Connection) -> None:
@@ -43,6 +51,13 @@ class ItemsRepository(BaseRepository):  # noqa: WPS214
         tags: Optional[Sequence[str]] = None,
     ) -> Item:
         async with self.connection.transaction():
+            if not image:
+                response = openai.Image.create(
+                    prompt=title,
+                    n=1,
+                    size="256x256",
+                )
+                image = response["data"][0]["url"]
             item_row = await queries.create_new_item(
                 self.connection,
                 slug=slug,
