@@ -65,9 +65,9 @@ class Editor extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.match.params.slug !== nextProps.match.params.slug) {
-      if (nextProps.match.params.slug) {
+  componentDidUpdate(prevProps) {
+    if (this.props.match.params.slug !== prevProps.match.params.slug) {
+      if (this.props.match.params.slug) {
         this.props.onUnload();
         return this.props.onLoad(agent.Items.get(this.props.match.params.slug));
       }
@@ -75,7 +75,7 @@ class Editor extends React.Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     if (this.props.match.params.slug) {
       return this.props.onLoad(agent.Items.get(this.props.match.params.slug));
     }
