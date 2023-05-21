@@ -10,6 +10,7 @@ import {
   EDITOR_PAGE_UNLOADED,
   UPDATE_FIELD_EDITOR,
 } from "../constants/actionTypes";
+import { withRouterParams } from "./commons";
 
 const mapStateToProps = (state) => ({
   ...state.editor,
@@ -66,18 +67,18 @@ class Editor extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.match.params.slug !== prevProps.match.params.slug) {
-      if (this.props.match.params.slug) {
+    if (this.props.params.slug !== prevProps.params.slug) {
+      if (this.props.params.slug) {
         this.props.onUnload();
-        return this.props.onLoad(agent.Items.get(this.props.match.params.slug));
+        return this.props.onLoad(agent.Items.get(this.props.params.slug));
       }
       this.props.onLoad(null);
     }
   }
 
   componentDidMount() {
-    if (this.props.match.params.slug) {
-      return this.props.onLoad(agent.Items.get(this.props.match.params.slug));
+    if (this.props.params.slug) {
+      return this.props.onLoad(agent.Items.get(this.props.params.slug));
     }
     this.props.onLoad(null);
   }
@@ -172,4 +173,4 @@ class Editor extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Editor);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouterParams(Editor));
