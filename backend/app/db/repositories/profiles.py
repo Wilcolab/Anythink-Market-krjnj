@@ -24,7 +24,7 @@ class ProfilesRepository(BaseRepository):
     ) -> Profile:
         user = await self._users_repo.get_user_by_username(username=username)
 
-        profile = Profile(username=user.username, bio=user.bio, image=user.image)
+        profile = Profile(username=user.username, bio=user.bio, image=user.image, isVerified=user.is_verified)
         if requested_user:
             profile.following = await self.is_user_following_for_another_user(
                 target_user=user,
